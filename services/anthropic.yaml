@@ -1,0 +1,12 @@
+name: "Anthropic API Key"
+env_var: ANTHROPIC_API_KEY
+url: "https://platform.claude.com/settings/billing"
+notes: |
+  Plan: Pay as you go, $0 credit (as of 2026-01-16)
+  
+  To get/rotate:
+  1. Go to platform.claude.com/settings/keys
+  2. Click "Create Key"
+  3. Name it (e.g., "dev-laptop")
+  4. Copy immediately (shown once)
+last_rotated: 2026-01-16T14:16:49+01:00

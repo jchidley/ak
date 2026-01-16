@@ -1,0 +1,13 @@
+name: "OpenAI API Key"
+env_var: OPENAI_API_KEY
+url: "https://platform.openai.com/settings/organization/billing/overview"
+notes: |
+  Plan: Pay as you go, $37.86 credit (as of 2026-01-16)
+  
+  To get/rotate:
+  1. Go to platform.openai.com/api-keys
+  2. Click "Create new secret key"
+  3. Project: "ak" (or create it)
+  4. Name: leave blank or descriptive
+  5. Copy immediately (shown once)
+last_rotated: 2026-01-16T13:03:16+01:00

@@ -1,0 +1,12 @@
+name: "DeepSeek API Key"
+env_var: DEEPSEEK_API_KEY
+url: "https://platform.deepseek.com/usage"
+notes: |
+  Plan: Paid, $49.99 credit (as of 2026-01-16)
+  Very cheap pricing for coding tasks
+  
+  To get/rotate:
+  1. Go to platform.deepseek.com/api_keys
+  2. Create new API key
+  3. Copy the key
+last_rotated: 2026-01-16T14:09:57+01:00

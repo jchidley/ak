@@ -1,0 +1,167 @@
+#!/bin/bash
+# Bitwarden CLI test script - uses test vault (jackc@chidley.org)
+# Safe sandbox for testing automation patterns
+
+set -e
+
+AK_DIR="${AK_DIR:-$HOME/tools/api-keys}"
+
+# Unlock test vault
+unlock() {
+    export BW_PASSWORD=$(ak get bitwarden-test)
+    export BW_SESSION=$(bw unlock --passwordenv BW_PASSWORD --raw 2>/dev/null)
+    if [[ -z "$BW_SESSION" ]]; then
+        echo "Failed to unlock test vault" >&2
+        exit 1
+    fi
+    echo "✓ Test vault unlocked"
+}
+
+# Lock vault
+lock() {
+    bw lock >/dev/null
+    echo "✓ Locked"
+}
+
+# Examples
+examples() {
+    cat <<'EOF'
+=== Bitwarden CLI Examples ===
+
+# List all items
+bw list items --session "$BW_SESSION" | jq -r '.[].name'
+
+# Get password
+bw get password "brave.com" --session "$BW_SESSION"
+
+# Get custom field
+bw get item "brave.com" --session "$BW_SESSION" | jq -r '.fields[] | select(.name=="pi-agent") | .value'
+
+# Get notes
+bw get notes "item-name" --session "$BW_SESSION"
+
+# Search items
+bw list items --search "google" --session "$BW_SESSION" | jq -r '.[].name'
+
+# Get full item as JSON
+bw get item "brave.com" --session "$BW_SESSION" | jq .
+
+# Create new item (combine item + login templates)
+ITEM=$(bw get template item --session "$BW_SESSION")
+LOGIN=$(bw get template item.login --session "$BW_SESSION")
+echo "$ITEM" | jq --argjson login "$LOGIN" '.name="test-item" | .login=$login | .login.username="user" | .login.password="pass"' | bw encode | bw create item --session "$BW_SESSION"
+
+# Edit item (get ID first)
+ID=$(bw list items --search "test-item" --session "$BW_SESSION" | jq -r '.[0].id')
+bw get item "$ID" --session "$BW_SESSION" | jq '.login.password="newpass"' | bw encode | bw edit item "$ID" --session "$BW_SESSION"
+
+# Delete item
+bw delete item "$ID" --session "$BW_SESSION"
+
+# Add custom field to item
+bw get item "$ID" --session "$BW_SESSION" | jq '.fields += [{"name":"api-key","value":"secret123","type":1}]' | bw encode | bw edit item "$ID" --session "$BW_SESSION"
+
+# Sync vault
+bw sync --session "$BW_SESSION"
+
+# Export vault (JSON)
+bw export --format json --session "$BW_SESSION" > backup.json
+
+# Folders
+bw list folders --session "$BW_SESSION" | jq -r '.[].name'
+bw get template folder | jq '.name="API Keys"' | bw encode | bw create folder --session "$BW_SESSION"
+
+# Organizations (if any)
+bw list organizations --session "$BW_SESSION"
+
+Docs: https://bitwarden.com/help/cli/
+EOF
+}
+
+# Run examples interactively
+run() {
+    unlock
+    echo ""
+    echo "BW_SESSION exported. Run commands interactively."
+    echo "Examples: bw-test examples"
+    echo "When done: bw lock"
+    echo ""
+    echo "export BW_SESSION=\"$BW_SESSION\""
+}
+
+# Test all read operations
+test_read() {
+    unlock
+    echo ""
+    
+    echo "=== List items ==="
+    bw list items --session "$BW_SESSION" | jq -r '.[].name'
+    echo ""
+    
+    echo "=== Get password (brave.com) ==="
+    bw get password "brave.com" --session "$BW_SESSION"
+    echo ""
+    
+    echo "=== Get custom field (brave.com -> pi-agent) ==="
+    bw get item "brave.com" --session "$BW_SESSION" | jq -r '.fields[] | select(.name=="pi-agent") | .value'
+    echo ""
+    
+    echo "=== Search (google) ==="
+    bw list items --search "google" --session "$BW_SESSION" | jq -r '.[].name'
+    echo ""
+    
+    lock
+}
+
+# Test CRUD operations
+test_crud() {
+    unlock
+    echo ""
+    
+    echo "=== Create test item ==="
+    ITEM=$(bw get template item --session "$BW_SESSION")
+    LOGIN=$(bw get template item.login --session "$BW_SESSION")
+    RESULT=$(echo "$ITEM" | jq --argjson login "$LOGIN" '.name="bw-test-temp" | .login=$login | .login.username="testuser" | .login.password="testpass"' | bw encode | bw create item --session "$BW_SESSION")
+    ID=$(echo "$RESULT" | jq -r '.id')
+    echo "Created: $ID"
+    echo ""
+    
+    echo "=== Edit test item ==="
+    bw get item "$ID" --session "$BW_SESSION" | jq '.login.password="newpass"' | bw encode | bw edit item "$ID" --session "$BW_SESSION" | jq '{id, name, password: .login.password}'
+    echo ""
+    
+    echo "=== Delete test item ==="
+    bw delete item "$ID" --session "$BW_SESSION"
+    echo "Deleted: $ID"
+    echo ""
+    
+    lock
+}
+
+case "${1:-help}" in
+    unlock) unlock ;;
+    lock) lock ;;
+    examples) examples ;;
+    run) run ;;
+    test-read) test_read ;;
+    test-crud) test_crud ;;
+    *)
+        cat <<EOF
+bw-test - Bitwarden CLI testing with test vault
+
+Commands:
+  unlock      Unlock test vault, export BW_SESSION
+  lock        Lock vault
+  examples    Show CLI examples
+  run         Unlock and print session for interactive use
+  test-read   Test read operations (list, get, search)
+  test-crud   Test create/edit/delete (creates temp item)
+
+Usage:
+  bw-test run              # Get session for interactive testing
+  eval "\$(bw-test run)"    # Export session to current shell
+  bw-test test-read        # Verify read operations work
+  bw-test test-crud        # Test write operations
+EOF
+        ;;
+esac

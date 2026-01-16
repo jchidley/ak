@@ -1,0 +1,15 @@
+name: "GitHub Personal Access Token"
+env_var: GITHUB_TOKEN
+url: "https://github.com/settings/tokens"
+notes: |
+  Plan: Free (as of 2026-01-16)
+  Token: ak-keys, EXPIRES 2026-01-23 (7 days)
+  
+  Fine-grained tokens (recommended):
+  https://github.com/settings/personal-access-tokens/new
+  
+  Typical scopes needed:
+  - repo (full control of private repos)
+  - read:org (if working with org repos)
+  - workflow (for GitHub Actions)
+last_rotated: 2026-01-16T14:50:41+01:00

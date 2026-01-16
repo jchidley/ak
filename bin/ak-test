@@ -1,0 +1,42 @@
+#!/bin/bash
+# Test all API keys
+set -e
+
+echo "=== API Key Tests ==="
+echo ""
+
+echo -n "anthropic: "; curl -s https://api.anthropic.com/v1/messages -H "x-api-key: $(ak get anthropic)" \
+  -H "anthropic-version: 2023-06-01" -H "content-type: application/json" \
+  -d '{"model":"claude-3-haiku-20240307","max_tokens":1,"messages":[{"role":"user","content":"hi"}]}' \
+  | jq -r 'if .error then "FAIL: \(.error.message | split(".")[0])" else "OK" end'
+
+echo -n "brave: "; curl -s "https://api.search.brave.com/res/v1/web/search?q=test" \
+  -H "X-Subscription-Token: $(ak get brave)" | jq -r 'if .query then "OK" else "FAIL" end'
+
+echo -n "deepseek: "; curl -s https://api.deepseek.com/v1/models \
+  -H "Authorization: Bearer $(ak get deepseek)" | jq -r 'if .data then "OK" else "FAIL" end'
+
+echo -n "github: "; curl -s -H "Authorization: Bearer $(ak get github)" https://api.github.com/user \
+  | jq -r 'if .login then "OK (\(.login))" else "FAIL" end'
+
+echo -n "google-ai: "; curl -s "https://generativelanguage.googleapis.com/v1/models?key=$(ak get google-ai)" \
+  | jq -r 'if .models then "OK" else "FAIL" end'
+
+echo -n "google-genai: "; curl -s "https://generativelanguage.googleapis.com/v1/models?key=$(ak get google-genai)" \
+  | jq -r 'if .models then "OK" else "FAIL" end'
+
+echo -n "groq: "; curl -s https://api.groq.com/openai/v1/models \
+  -H "Authorization: Bearer $(ak get groq)" | jq -r 'if .data then "OK" else "FAIL" end'
+
+echo -n "moonshot: "; curl -s https://api.moonshot.ai/v1/models \
+  -H "Authorization: Bearer $(ak get moonshot)" | jq -r 'if .data then "OK" else "FAIL" end'
+
+echo -n "openai: "; curl -s https://api.openai.com/v1/models \
+  -H "Authorization: Bearer $(ak get openai)" | jq -r 'if .data then "OK" else "FAIL" end'
+
+echo -n "spider: "; curl -s https://api.spider.cloud/v1/crawl -H "Authorization: Bearer $(ak get spider)" \
+  -H "Content-Type: application/json" -d '{"url":"https://example.com","limit":1}' \
+  | jq -r 'if .[0].url then "OK" else "FAIL" end'
+
+echo ""
+echo "=== Done ==="

@@ -1,0 +1,12 @@
+name: "Brave Search API"
+env_var: BRAVE_API_KEY
+url: "https://api-dashboard.search.brave.com/app/subscriptions/active"
+notes: |
+  Plan: Free, 2,000 queries/month (as of 2026-01-16)
+  
+  To get/rotate:
+  1. Go to api-dashboard.search.brave.com/app/keys
+  2. Click "Add API Key"
+  3. Name: ak-keys
+  4. Copy the key
+last_rotated: 2026-01-16T14:19:17+01:00

@@ -1,0 +1,5 @@
+# Encrypted secrets (personal keys)
+secrets/
+
+# GPG key ID (personal)
+.gpg-key-id

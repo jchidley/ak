@@ -1,0 +1,359 @@
+#!/bin/bash
+# ak - API Key manager (GPG-based)
+# Simple GPG-based secret storage with per-service metadata
+# Uses gpg-agent for passphrase caching
+
+set -e
+
+AK_DIR="${AK_DIR:-$HOME/tools/api-keys}"
+SECRETS_DIR="$AK_DIR/secrets"
+SERVICES_DIR="$AK_DIR/services"
+GPG_KEY_FILE="$AK_DIR/.gpg-key-id"
+
+# Colors
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[0;33m'
+BLUE='\033[0;34m'
+NC='\033[0m'
+
+# Parse YAML field (simple, no deps)
+yaml_get() {
+    local file="$1"
+    local field="$2"
+    grep "^${field}:" "$file" 2>/dev/null | sed "s/^${field}:[[:space:]]*//" | sed 's/^"//' | sed 's/"$//'
+}
+
+cmd_help() {
+    cat <<EOF
+ak - API Key Manager (GPG encryption with gpg-agent caching)
+
+Usage: ak <command> [args]
+
+Commands:
+  init                  Initialize with GPG key (select existing)
+  list                  List all configured services
+  get <service>         Get decrypted secret (stdout)
+  set <service>         Store/update secret (prompts)
+  show <service>        Show service info (URL, notes, etc.)
+  edit <service>        Edit service metadata
+  open <service>        Open service URL in browser
+  export [service]      Export as env var(s)
+  rotate <service>      Show rotation info + open URL
+
+Examples:
+  ak list               # Show all services
+  ak get brave          # Print Brave API key
+  ak show github        # Show GitHub token info
+  ak open anthropic     # Open Anthropic dashboard
+  ak export             # Print export commands for all
+  
+  # Use in scripts:
+  export BRAVE_API_KEY=\$(ak get brave)
+  
+  # Load all keys:
+  eval "\$(ak export)"
+
+gpg-agent caches your passphrase after first use.
+Configure cache TTL in ~/.gnupg/gpg-agent.conf:
+  default-cache-ttl 3600
+  max-cache-ttl 86400
+
+Config: $AK_DIR
+EOF
+}
+
+cmd_init() {
+    echo "=== API Key Manager Setup (GPG) ==="
+    
+    mkdir -p "$SECRETS_DIR" "$SERVICES_DIR"
+    chmod 700 "$SECRETS_DIR"
+    
+    # List available secret keys
+    echo ""
+    echo "Available GPG keys:"
+    echo ""
+    gpg --list-secret-keys --keyid-format SHORT 2>/dev/null | grep -E "^sec|^uid" | head -20
+    echo ""
+    
+    # Get key IDs
+    local key_ids=$(gpg --list-secret-keys --keyid-format SHORT 2>/dev/null | grep "^sec" | sed 's/.*\///' | awk '{print $1}')
+    
+    if [[ -z "$key_ids" ]]; then
+        echo -e "${RED}No GPG keys found.${NC}"
+        echo "Create one with: gpg --full-generate-key"
+        exit 1
+    fi
+    
+    local key_count=$(echo "$key_ids" | wc -l)
+    
+    if [[ "$key_count" -eq 1 ]]; then
+        local selected_key="$key_ids"
+        echo "Using key: $selected_key"
+    else
+        echo "Enter the key ID to use (short form, e.g., 0118A3F9):"
+        read -p "> " selected_key
+    fi
+    
+    # Verify the key exists
+    if ! gpg --list-secret-keys "$selected_key" &>/dev/null; then
+        echo -e "${RED}Key not found: $selected_key${NC}" >&2
+        exit 1
+    fi
+    
+    # Save key ID
+    echo "$selected_key" > "$GPG_KEY_FILE"
+    chmod 600 "$GPG_KEY_FILE"
+    
+    echo ""
+    echo -e "${GREEN}✓ Configured to use GPG key: $selected_key${NC}"
+    echo ""
+    echo "gpg-agent will cache your passphrase after first use."
+    echo "Configure cache duration in ~/.gnupg/gpg-agent.conf"
+    
+    # Clean up old age files if present
+    if [[ -f "$AK_DIR/key.age" ]]; then
+        echo ""
+        echo -e "${YELLOW}Note: Old age key file found (key.age)${NC}"
+        echo "Old .age secrets will need to be re-encrypted with: ak set <service>"
+    fi
+    if [[ -f "$AK_DIR/.ssh-key-path" ]]; then
+        rm -f "$AK_DIR/.ssh-key-path"
+    fi
+}
+
+_get_key_id() {
+    if [[ -f "$GPG_KEY_FILE" ]]; then
+        cat "$GPG_KEY_FILE"
+    else
+        echo ""
+    fi
+}
+
+cmd_list() {
+    echo "Configured services:"
+    echo ""
+    
+    shopt -s nullglob
+    for svc_file in "$SERVICES_DIR"/*.yaml; do
+        [[ -f "$svc_file" ]] || continue
+        local name=$(basename "$svc_file" .yaml)
+        local desc=$(yaml_get "$svc_file" "name")
+        local env_var=$(yaml_get "$svc_file" "env_var")
+        local has_secret=" "
+        
+        [[ -f "$SECRETS_DIR/${name}.gpg" ]] && has_secret="${GREEN}✓${NC}"
+        
+        printf "  %b %-15s %-25s %s\n" "$has_secret" "$name" "$desc" "$env_var"
+    done
+    
+    echo ""
+    echo "Legend: ✓ = secret stored"
+}
+
+cmd_get() {
+    local service="$1"
+    
+    if [[ -z "$service" ]]; then
+        echo "Usage: ak get <service>" >&2
+        exit 1
+    fi
+    
+    local secret_file="$SECRETS_DIR/${service}.gpg"
+    
+    if [[ ! -f "$secret_file" ]]; then
+        echo -e "${RED}No secret stored for: $service${NC}" >&2
+        echo "Run: ak set $service" >&2
+        exit 1
+    fi
+    
+    # Decrypt - gpg-agent handles passphrase caching
+    gpg --quiet --decrypt "$secret_file" 2>/dev/null
+}
+
+cmd_set() {
+    local service="$1"
+    local value="$2"
+    
+    if [[ -z "$service" ]]; then
+        echo "Usage: ak set <service> [value]" >&2
+        exit 1
+    fi
+    
+    local key_id=$(_get_key_id)
+    if [[ -z "$key_id" ]]; then
+        echo -e "${RED}No GPG key configured. Run: ak init${NC}" >&2
+        exit 1
+    fi
+    
+    mkdir -p "$SECRETS_DIR"
+    chmod 700 "$SECRETS_DIR"
+    
+    # Prompt if no value provided
+    if [[ -z "$value" ]]; then
+        echo -n "Enter secret for '$service': "
+        read -s value
+        echo
+    fi
+    
+    # Encrypt to our key
+    echo -n "$value" | gpg --quiet --encrypt --recipient "$key_id" --output "$SECRETS_DIR/${service}.gpg" 2>/dev/null
+    chmod 600 "$SECRETS_DIR/${service}.gpg"
+    
+    echo -e "${GREEN}✓ Stored: $service${NC}"
+    
+    # Update last_rotated if service file exists
+    if [[ -f "$SERVICES_DIR/${service}.yaml" ]]; then
+        local tmp=$(mktemp)
+        grep -v "^last_rotated:" "$SERVICES_DIR/${service}.yaml" > "$tmp" 2>/dev/null || true
+        echo "last_rotated: $(date -Iseconds)" >> "$tmp"
+        mv "$tmp" "$SERVICES_DIR/${service}.yaml"
+    fi
+    
+    # Remove old .age file if exists
+    [[ -f "$SECRETS_DIR/${service}.age" ]] && rm -f "$SECRETS_DIR/${service}.age"
+}
+
+cmd_show() {
+    local service="$1"
+    
+    if [[ -z "$service" ]]; then
+        echo "Usage: ak show <service>" >&2
+        exit 1
+    fi
+    
+    local svc_file="$SERVICES_DIR/${service}.yaml"
+    
+    if [[ ! -f "$svc_file" ]]; then
+        echo -e "${YELLOW}No metadata for: $service${NC}"
+        echo "Create with: ak edit $service"
+        return
+    fi
+    
+    echo -e "${BLUE}=== $service ===${NC}"
+    cat "$svc_file"
+    echo ""
+    
+    if [[ -f "$SECRETS_DIR/${service}.gpg" ]]; then
+        echo -e "Secret: ${GREEN}stored${NC}"
+    else
+        echo -e "Secret: ${RED}not set${NC}"
+    fi
+}
+
+cmd_edit() {
+    local service="$1"
+    
+    if [[ -z "$service" ]]; then
+        echo "Usage: ak edit <service>" >&2
+        exit 1
+    fi
+    
+    local svc_file="$SERVICES_DIR/${service}.yaml"
+    
+    if [[ ! -f "$svc_file" ]]; then
+        cat > "$svc_file" <<EOF
+name: "$service"
+env_var: ${service^^}_API_KEY
+url: ""
+notes: |
+  How to get/rotate this key:
+  1. Go to URL above
+  2. ...
+last_rotated: $(date -Iseconds)
+EOF
+    fi
+    
+    ${EDITOR:-nano} "$svc_file"
+}
+
+cmd_open() {
+    local service="$1"
+    
+    if [[ -z "$service" ]]; then
+        echo "Usage: ak open <service>" >&2
+        exit 1
+    fi
+    
+    local svc_file="$SERVICES_DIR/${service}.yaml"
+    local url=$(yaml_get "$svc_file" "url")
+    
+    if [[ -z "$url" ]]; then
+        echo -e "${RED}No URL configured for: $service${NC}" >&2
+        exit 1
+    fi
+    
+    echo "Opening: $url"
+    
+    if command -v xdg-open &>/dev/null; then
+        xdg-open "$url"
+    elif command -v wslview &>/dev/null; then
+        wslview "$url"
+    elif [[ -n "$BROWSER" ]]; then
+        "$BROWSER" "$url"
+    else
+        echo "Copy URL: $url"
+    fi
+}
+
+cmd_export() {
+    local service="$1"
+    
+    if [[ -n "$service" ]]; then
+        local svc_file="$SERVICES_DIR/${service}.yaml"
+        local env_var=$(yaml_get "$svc_file" "env_var")
+        [[ -z "$env_var" ]] && env_var="${service^^}_API_KEY"
+        
+        if [[ -f "$SECRETS_DIR/${service}.gpg" ]]; then
+            local value=$(cmd_get "$service")
+            echo "export $env_var='$value'"
+        fi
+    else
+        shopt -s nullglob
+        for svc_file in "$SERVICES_DIR"/*.yaml; do
+            [[ -f "$svc_file" ]] || continue
+            local name=$(basename "$svc_file" .yaml)
+            local env_var=$(yaml_get "$svc_file" "env_var")
+            [[ -z "$env_var" ]] && env_var="${name^^}_API_KEY"
+            
+            if [[ -f "$SECRETS_DIR/${name}.gpg" ]]; then
+                local value=$(cmd_get "$name")
+                echo "export $env_var='$value'"
+            fi
+        done
+    fi
+}
+
+cmd_rotate() {
+    local service="$1"
+    
+    if [[ -z "$service" ]]; then
+        echo "Usage: ak rotate <service>" >&2
+        exit 1
+    fi
+    
+    cmd_show "$service"
+    echo ""
+    cmd_open "$service" 2>/dev/null || true
+    echo ""
+    echo "After rotating the key, run: ak set $service"
+}
+
+# Main
+case "${1:-help}" in
+    help|--help|-h) cmd_help ;;
+    init) cmd_init ;;
+    list|ls) cmd_list ;;
+    get) cmd_get "$2" ;;
+    set) cmd_set "$2" "$3" ;;
+    show|info) cmd_show "$2" ;;
+    edit) cmd_edit "$2" ;;
+    open) cmd_open "$2" ;;
+    export|env) cmd_export "$2" ;;
+    rotate) cmd_rotate "$2" ;;
+    *) 
+        echo "Unknown command: $1" >&2
+        cmd_help
+        exit 1
+        ;;
+esac

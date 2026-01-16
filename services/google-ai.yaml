@@ -1,0 +1,12 @@
+name: "Gemini API Key"
+env_var: GOOGLE_AI_API_KEY
+url: "https://aistudio.google.com/app/api-keys"
+notes: |
+  Plan: Free tier (as of 2026-01-16)
+  
+  To get/rotate:
+  1. Go to AI Studio → API keys
+  2. Project: ak-keys (gen-lang-client-0804534484)
+  3. Key name: "Gemini API Key"
+  4. Copy the key (AIza... format)
+last_rotated: 2026-01-16T13:59:56+01:00

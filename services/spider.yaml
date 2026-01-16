@@ -1,0 +1,12 @@
+name: "Spider.cloud API Key"
+env_var: SPIDER_API_KEY
+url: "https://spider.cloud/dashboard"
+notes: |
+  Web scraping/crawling API
+  Plan: Paid, $39.01 credit (as of 2026-01-16)
+  
+  To get/rotate:
+  1. Go to dashboard
+  2. Find API key section
+  3. Generate new key
+last_rotated: 2026-01-16T14:14:20+01:00

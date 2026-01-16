@@ -1,0 +1,17 @@
+name: "Bitwarden Test Vault"
+env_var: BW_TEST_SESSION
+url: "https://vault.bitwarden.eu"
+notes: |
+  Sandbox for testing Bitwarden CLI automation scripts.
+  Contains dummy keys mirroring all services - safe to experiment with.
+  
+  Account: jackc@chidley.org
+  Server: vault.bitwarden.eu (EU instance)
+  Password: stored via ak (ak get bitwarden-test)
+  
+  Automated unlock:
+    export BW_PASSWORD=$(ak get bitwarden-test)
+    export BW_SESSION=$(bw unlock --passwordenv BW_PASSWORD --raw)
+    bw list items --session "$BW_SESSION"
+    bw lock
+last_rotated: 2026-01-16T15:07:55+01:00

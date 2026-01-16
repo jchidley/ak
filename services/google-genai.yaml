@@ -1,0 +1,10 @@
+name: "Generative Language API Key"
+env_var: GOOGLE_GENAI_API_KEY
+url: "https://console.cloud.google.com/apis/credentials"
+notes: |
+  Legacy key from Google Cloud Console
+  Project: gen-lang-client-0804534484
+  Key name: gen-lang-client-0804534484
+  
+  Used by older integrations expecting this key format.
+last_rotated: 2026-01-16T13:59:10+01:00

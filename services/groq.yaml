@@ -1,0 +1,17 @@
+name: "Groq Cloud API Key"
+env_var: GROQ_API_KEY
+url: "https://console.groq.com/settings/billing/limits"
+notes: |
+  Fast inference for open models (Llama, Mixtral, etc.)
+  Plan: Paid, $20 spending limit (as of 2026-01-16)
+  
+  To get/rotate:
+  1. Go to console.groq.com/keys
+  2. Click "Create API Key"
+  3. Display name: ak-keys
+  4. Expiry: 90 days
+  5. Copy the key
+  
+  EXPIRES: ~April 16, 2026
+  Billing: console.groq.com/settings/billing/manage
+last_rotated: 2026-01-16T14:08:38+01:00

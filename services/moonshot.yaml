@@ -1,0 +1,12 @@
+name: "Moonshot AI API Key"
+env_var: MOONSHOT_API_KEY
+url: "https://platform.moonshot.ai/console/account"
+notes: |
+  Chinese AI provider (Kimi)
+  Plan: Paid, $22.75 credit (as of 2026-01-16)
+  
+  To get/rotate:
+  1. Go to platform.moonshot.ai/console/api-keys
+  2. Create new API key
+  3. Copy the key
+last_rotated: 2026-01-16T14:12:26+01:00
