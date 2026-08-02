@@ -1,0 +1,9 @@
+name: "DeepInfra API Key"
+env_var: DEEPINFRA_API_KEY
+url: "https://deepinfra.com/dash/api_keys"
+notes: |
+  To get/rotate:
+  1. Go to deepinfra.com/dash/api_keys
+  2. Click create API key
+  3. Copy immediately (shown once)
+last_rotated: 2026-03-12T11:14:34+00:00

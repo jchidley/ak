@@ -1,0 +1,9 @@
+name: "OpenRouter API Key"
+env_var: OPENROUTER_API_KEY
+url: "https://openrouter.ai/settings/keys"
+notes: |
+  To get/rotate:
+  1. Go to openrouter.ai/settings/keys
+  2. Click create key / generate a new key
+  3. Copy immediately (shown once)
+last_rotated: 2026-03-12T10:42:25+00:00

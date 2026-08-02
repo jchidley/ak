@@ -1,0 +1,4 @@
+#!/bin/bash
+# SSH_ASKPASS helper — returns SSH key passphrase from ak/GPG store.
+# Called by ssh-add as: $SSH_ASKPASS "prompt text" — argument is ignored.
+exec ak get ssh-key

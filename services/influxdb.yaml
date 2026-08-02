@@ -1,0 +1,7 @@
+name: "InfluxDB Token"
+env_var: INFLUX_TOKEN
+url: "http://pi5data:8086"
+notes: |
+  InfluxDB v2 API token on pi5data.
+  Used by thermal model (Rust + Python), z2m-hub, Telegraf.
+  Org: home, Bucket: energy.

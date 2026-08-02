@@ -5,6 +5,11 @@
 AK_DIR="${HOME}/tools/api-keys"
 AK_BIN="${AK_DIR}/bin/ak"
 
+# Set AK_DIRENV_VERBOSE=1 to log each loaded variable via direnv log_status
+ak_log_loaded() {
+    [[ "${AK_DIRENV_VERBOSE:-0}" == "1" ]] && log_status "Loaded $1"
+}
+
 # Get a secret using ak (GPG-based)
 # Usage: ak_get <name>
 ak_get() {
@@ -15,7 +20,7 @@ ak_get() {
 # Load all API keys from GPG-encrypted storage
 load_api_keys() {
     local -A mappings=(
-        ["anthropic"]="ANTHROPIC_API_KEY"
+        ["anthropic"]="CLAUDE_CODE_OAUTH_TOKEN"
         ["brave"]="BRAVE_API_KEY"
         ["deepseek"]="DEEPSEEK_API_KEY"
         ["github"]="GITHUB_TOKEN"
@@ -23,17 +28,20 @@ load_api_keys() {
         ["google-genai"]="GOOGLE_GENAI_API_KEY"
         ["groq"]="GROQ_API_KEY"
         ["moonshot"]="MOONSHOT_API_KEY"
+        ["octopus"]="OCTOPUS_API_KEY"
         ["openai"]="OPENAI_API_KEY"
+        ["openrouter"]="OPENROUTER_API_KEY"
+        ["deepinfra"]="DEEPINFRA_API_KEY"
         ["spider"]="SPIDER_API_KEY"
     )
-    
+
     for secret_name in "${!mappings[@]}"; do
         local env_var="${mappings[$secret_name]}"
         local value
-        
+
         if value=$(ak_get "$secret_name"); then
             export "$env_var=$value"
-            log_status "Loaded $env_var"
+            ak_log_loaded "$env_var"
         fi
     done
 }
@@ -59,7 +67,7 @@ use_ak() {
                 env_var=$(grep "^env_var:" "${AK_DIR}/services/${name}.yaml" 2>/dev/null | sed 's/env_var:[[:space:]]*//')
                 [[ -z "$env_var" ]] && env_var="${name^^}_API_KEY"
                 export "$env_var=$value"
-                log_status "Loaded $env_var"
+                ak_log_loaded "$env_var"
             fi
         done
     fi

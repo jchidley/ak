@@ -1,0 +1,10 @@
+name: "Mistral AI API Key"
+env_var: MISTRAL_API_KEY
+url: "https://console.mistral.ai/api-keys"
+notes: |
+  API key for the Mistral AI platform and pi's built-in Mistral provider.
+
+  To get/rotate:
+  1. Go to console.mistral.ai/api-keys
+  2. Create a new API key
+  3. Copy the key

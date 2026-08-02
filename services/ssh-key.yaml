@@ -1,0 +1,7 @@
+name: "SSH Key Passphrase"
+env_var: SSH_KEY_PASSPHRASE
+url: ""
+notes: |
+  Passphrase for ~/.ssh/id_ed25519
+  Used by .bashrc to auto-load SSH key into ssh-agent on shell startup.
+last_rotated: 2026-03-20T13:36:03+00:00

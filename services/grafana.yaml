@@ -1,0 +1,7 @@
+name: "Grafana Admin Password"
+env_var: GRAFANA_PASSWORD
+url: "http://pi5data:3000"
+notes: |
+  Grafana admin password on pi5data (Docker).
+  Use: curl -s "http://admin:$(ak get grafana)@pi5data:3000/api/search"
+last_rotated: 2026-04-20T23:34:01+01:00

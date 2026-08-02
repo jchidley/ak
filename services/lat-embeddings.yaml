@@ -1,0 +1,15 @@
+name: "OpenAI Embeddings (lat.md)"
+env_var: LAT_LLM_KEY
+url: "https://platform.openai.com/api-keys"
+notes: |
+  Dedicated OpenAI API key for lat.md semantic search (embeddings only).
+  Extremely low cost — fractions of a penny per query.
+
+  To get/rotate:
+  1. Go to platform.openai.com/api-keys
+  2. Click "Create new secret key"
+  3. Name: "lat-embeddings"
+  4. Copy immediately (shown once)
+
+  Usage: export LAT_LLM_KEY_HELPER="ak get lat-embeddings"
+last_rotated: 2026-04-03T14:43:25+01:00

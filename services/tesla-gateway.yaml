@@ -1,0 +1,25 @@
+name: "Tesla Gateway Password"
+env_var: TESLA_GATEWAY_PASSWORD
+url: "https://10.0.1.40"
+notes: |
+  Local Tesla Energy Gateway (Powerwall 2) auth password.
+  IP: 10.0.1.40
+  DIN: 1152100-13-L--CN323143G3L01H
+  Firmware: 26.2.2
+  Username: customer
+
+  The password is printed on a sticker on the physical gateway
+  (inside the Powerwall cover). It's NOT the Tesla app email.
+
+  Usage:
+    curl -sk https://10.0.1.40/api/login/Basic -X POST \
+      -H "Content-Type: application/json" \
+      -d "{\"username\":\"customer\",\"email\":\"jack@chidley.org\",\"password\":\"$(ak get tesla-gateway)\"}" \
+      -c /tmp/tesla_cookies.txt
+
+  Key endpoints (after auth):
+    /api/meters/aggregates   - real-time power (solar, grid, battery, home)
+    /api/system_status/soe   - battery state of charge (%)
+    /api/powerwalls          - battery info
+    /api/operation           - operating mode
+last_rotated: 2026-04-03T08:42:54+01:00

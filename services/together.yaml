@@ -1,0 +1,11 @@
+name: "Together AI API Key"
+env_var: TOGETHER_API_KEY
+url: "https://api.together.ai/settings/api-keys"
+notes: |
+  Paid Together AI inference account.
+
+  To get/rotate:
+  1. Go to api.together.ai/settings/api-keys
+  2. Create a replacement API key
+  3. Run: ak set together
+last_rotated: 2026-07-24T18:18:42+01:00

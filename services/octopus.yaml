@@ -1,0 +1,7 @@
+name: "Octopus Energy API"
+env_var: OCTOPUS_API_KEY
+url: "https://octopus.energy/dashboard/new/accounts/personal-details/api-access"
+notes: |
+  Personal REST/GraphQL API key.
+  Use for single-account scripts.
+  Rotate via the Octopus dashboard URL above.

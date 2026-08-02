@@ -1,0 +1,10 @@
+name: "Tavily API Key"
+env_var: TAVILY_API_KEY
+url: "https://app.tavily.com/home"
+notes: |
+  To get/rotate:
+  1. Sign in to app.tavily.com
+  2. Open the API key/dashboard area
+  3. Create or copy your API key
+  4. Store it with: ak set tavily
+last_rotated: 2026-04-16T00:00:00+00:00

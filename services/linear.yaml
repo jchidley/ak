@@ -1,0 +1,7 @@
+name: "Linear API Key"
+env_var: LINEAR_API_KEY
+url: "https://linear.app/settings/account/security"
+notes: |
+  Personal API key for Linear.
+  Create/manage it in Security & access.
+last_rotated: 2026-04-15T00:00:00+00:00
