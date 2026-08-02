@@ -212,8 +212,10 @@ cmd_set() {
         mv "$tmp" "$SERVICES_DIR/${service}.yaml"
     fi
     
-    # Remove old .age file if exists
-    [[ -f "$SECRETS_DIR/${service}.age" ]] && rm -f "$SECRETS_DIR/${service}.age"
+    # Remove old .age file if exists without turning absence into a failure status.
+    if [[ -f "$SECRETS_DIR/${service}.age" ]]; then
+        rm -f "$SECRETS_DIR/${service}.age"
+    fi
 }
 
 cmd_show() {

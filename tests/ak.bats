@@ -16,11 +16,25 @@ notes: |
   Test fixture only.
 YAML
 
+  printf 'TEST-KEY-ID\n' >"$TEST_REPO/.gpg-key-id"
+
   cat >"$TEST_BIN/gpg" <<'SH'
 #!/bin/bash
 set -e
 if [[ " $* " == *" --decrypt "* ]]; then
   printf '%s' "$(<"${!#}")"
+  exit 0
+fi
+if [[ " $* " == *" --encrypt "* ]]; then
+  while [[ $# -gt 0 ]]; do
+    if [[ "$1" == "--output" ]]; then
+      output="$2"
+      break
+    fi
+    shift
+  done
+  [[ -n "${output:-}" ]]
+  cat >"$output"
   exit 0
 fi
 echo "unexpected fake gpg invocation" >&2
@@ -48,6 +62,13 @@ SH
   [[ "$output" == *"test"* ]]
   [[ "$output" == *"TEST_KEY"* ]]
   [[ "$output" != *"fixture-secret"* ]]
+}
+
+@test "set succeeds when there is no legacy age file" {
+  run bash -c 'printf "%s\n" "new-secret" | env AK_DIR="$1" PATH="$2:$PATH" "$1/bin/ak" set test' _ "$TEST_REPO" "$TEST_BIN"
+
+  [ "$status" -eq 0 ]
+  [ "$(<"$TEST_REPO/secrets/test.gpg")" = "new-secret" ]
 }
 
 @test "export shell-quotes secrets instead of executing their contents" {

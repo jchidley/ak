@@ -4,3 +4,4 @@ url: ""
 notes: |
   Accepted low-risk read-only key used by heat-pump analysis tooling.
   Keep the value out of project guidance and configuration.
+last_rotated: 2026-08-02T22:40:14+01:00
