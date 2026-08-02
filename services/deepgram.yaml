@@ -1,0 +1,5 @@
+name: "Deepgram API Key"
+env_var: DEEPGRAM_API_KEY
+url: "https://console.deepgram.com/project/keys"
+notes: |
+  Speech API credential. Rotate in the Deepgram console.

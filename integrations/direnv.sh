@@ -1,9 +1,10 @@
 # GPG-based secret management for direnv
-# Symlink to: ~/.config/direnv/lib/
-#   ln -sf ~/tools/api-keys/integrations/direnv.sh ~/.config/direnv/lib/ak.sh
+# Symlink to: ~/.config/direnv/lib/ak.sh
+#   ln -sf ~/github/ak/integrations/direnv.sh ~/.config/direnv/lib/ak.sh
 
-AK_DIR="${HOME}/tools/api-keys"
-AK_BIN="${AK_DIR}/bin/ak"
+AK_INTEGRATION_PATH="$(readlink -f -- "${BASH_SOURCE[0]}")"
+AK_DIR="${AK_DIR:-$(dirname -- "$(dirname -- "$AK_INTEGRATION_PATH")")}"
+AK_BIN="${AK_BIN:-$(command -v ak 2>/dev/null || printf '%s/bin/ak' "$AK_DIR")}"
 
 # Set AK_DIRENV_VERBOSE=1 to log each loaded variable via direnv log_status
 ak_log_loaded() {

@@ -1,0 +1,5 @@
+name: "TimescaleDB Password"
+env_var: TIMESCALEDB_PASSWORD
+url: ""
+notes: |
+  Database credential. Confirm the owning deployment before rotation.

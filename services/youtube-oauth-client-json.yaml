@@ -1,0 +1,6 @@
+name: "YouTube OAuth Client JSON"
+env_var: YOUTUBE_OAUTH_CLIENT_JSON
+url: "https://console.cloud.google.com/apis/credentials"
+notes: |
+  OAuth client configuration JSON used by YouTube tooling.
+  Rotate from Google Cloud credentials if the client is exposed.

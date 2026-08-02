@@ -5,14 +5,12 @@ GPG-encrypted secret storage with gpg-agent passphrase caching.
 ## Directory Structure
 
 ```
-~/tools/api-keys/
+~/github/ak/
 ├── bin/
 │   ├── ak                  # Main CLI (bash)
 │   ├── ak-test             # Test all API keys
 │   ├── ak-functions.sh     # Shell functions: load_api_keys, aliases
-│   ├── ak.ps1              # PowerShell version (uses age, legacy)
-│   ├── bw-test             # Bitwarden CLI testing (uses test vault)
-│   ├── bw-test-unlock      # Legacy test vault unlock
+│   ├── ak.ps1              # PowerShell interface using Credential Manager
 │   └── review-api-usage    # Monthly security review checklist
 ├── secrets/*.gpg           # Encrypted secrets
 ├── services/*.yaml         # Service metadata (URLs, env vars, notes)
@@ -68,8 +66,8 @@ last_rotated: 2026-01-16T14:16:49+01:00
 ### Bash/Zsh (~/.bashrc)
 
 ```bash
-export PATH="$HOME/tools/api-keys/bin:$PATH"
-source "$HOME/tools/api-keys/bin/ak-functions.sh"
+ln -sfn "$HOME/github/ak/bin/ak" "$HOME/.local/bin/ak"
+source "$HOME/github/ak/bin/ak-functions.sh"
 ```
 
 Provides:
@@ -87,17 +85,17 @@ use_ak brave spider # Load specific keys
 
 Requires symlink:
 ```bash
-ln -sf ~/tools/api-keys/integrations/direnv.sh ~/.config/direnv/lib/ak.sh
+ln -sfn ~/github/ak/integrations/direnv.sh ~/.config/direnv/lib/ak.sh
 ```
 
 ### PowerShell ($PROFILE)
 
 ```powershell
-$env:PATH += ";$env:USERPROFILE\tools\api-keys\bin"
-$env:BRAVE_API_KEY = $(ak get brave)
+. C:\path\to\ak\bin\ak.ps1
+$env:BRAVE_API_KEY = Get-AkSecret brave
 ```
 
-Note: ak.ps1 uses age encryption (legacy), not GPG.
+Note: the PowerShell interface stores Windows-side secrets through Credential Manager; the WSL Bash interface uses GPG-encrypted files.
 
 ## GPG Configuration
 
@@ -141,8 +139,8 @@ gpg --edit-key <KEY_ID>  # trust → 5 (ultimate) → quit
 ### Sync Secrets
 
 ```bash
-rsync -av ~/tools/api-keys/secrets/ target:~/tools/api-keys/secrets/
-rsync -av ~/tools/api-keys/.gpg-key-id target:~/tools/api-keys/
+rsync -av ~/github/ak/secrets/ target:~/github/ak/secrets/
+rsync -av ~/github/ak/.gpg-key-id target:~/github/ak/
 ```
 
 ## Adding New Services
@@ -164,7 +162,7 @@ ak set <service>     # Paste new key
 ## Security Model
 
 - **Encryption**: GPG (RSA/AES-256)
-- **Key**: GPG key 0118A3F9 (Jack Chidley), passphrase in Bitwarden
+- **Key**: the GPG recipient selected by `ak init`; do not document its passphrase
 - **Cache**: gpg-agent caches passphrase (configurable TTL)
 - **Storage**: secrets/*.gpg files, 600 permissions
 - **Exposure**: Once unlocked, any user process can decrypt for cache duration
@@ -211,29 +209,10 @@ The `legacy/` directory contains archived Bitwarden integration docs from before
 ## Testing
 
 ```bash
-ak-test   # Test all API keys
-bw-test   # Test Bitwarden CLI (uses test vault)
+ak-test   # Provider API smoke tests; may consume quota
 ```
 
-## Bitwarden CLI
-
-Test vault for automation experiments: jackc@chidley.org on vault.bitwarden.eu
-Password: `ak get bitwarden-test`
-
-```bash
-# Unlock test vault
-export BW_PASSWORD=$(ak get bitwarden-test)
-export BW_SESSION=$(bw unlock --passwordenv BW_PASSWORD --raw)
-
-# Get password/field
-bw get password "item-name" --session "$BW_SESSION"
-bw get item "item-name" --session "$BW_SESSION" | jq -r '.fields[] | select(.name=="field") | .value'
-
-# Lock
-bw lock
-```
-
-Full docs: https://bitwarden.com/help/cli/
+Historical Bitwarden automation experiments are retained under `legacy/bitwarden/`; they are not active workspace credential commands.
 
 ## Implementation Notes
 

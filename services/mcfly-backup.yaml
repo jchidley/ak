@@ -1,0 +1,6 @@
+name: "McFly Backup Passphrase"
+env_var: MCFLY_BACKUP_PASSPHRASE
+url: ""
+notes: |
+  Passphrase used to encrypt and decrypt McFly history backups.
+  Workspace scripts must retrieve it with: ak get mcfly-backup

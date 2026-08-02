@@ -1,0 +1,5 @@
+name: "InfluxDB 3 Token"
+env_var: INFLUXDB3_TOKEN
+url: ""
+notes: |
+  InfluxDB 3 authentication token. Confirm the owning deployment before rotation.

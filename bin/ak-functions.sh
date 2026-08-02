@@ -1,9 +1,9 @@
 # ak - API Key Manager shell functions
-# Source this file in .bashrc or .zshrc
-# Requires: gpg, ~/tools/api-keys/bin/ak
+# Source this file in .bashrc or .zshrc after installing ak in ~/.local/bin.
 
-# Ensure ak is in PATH
-export PATH="$HOME/tools/api-keys/bin:$PATH"
+if ! command -v ak >/dev/null 2>&1; then
+    echo "ak is not installed on PATH (expected ~/.local/bin/ak)" >&2
+fi
 
 # Load all API keys into environment
 load_api_keys() {

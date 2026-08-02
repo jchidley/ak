@@ -1,10 +1,10 @@
 # ak - API Key Manager for PowerShell
 # Uses Windows Credential Manager via precompiled CredManager.dll
 
-$global:AK_DIR = "$env:USERPROFILE\tools\api-keys"
-$global:SERVICES_DIR = "$AK_DIR\services"
-$global:CRED_PREFIX = "ak:"  # Prefix for credential targets
 $global:AK_SCRIPT_DIR = if ($PSScriptRoot) { $PSScriptRoot } else { Split-Path -Parent $MyInvocation.MyCommand.Path }
+$global:AK_DIR = Split-Path -Parent $AK_SCRIPT_DIR
+$global:SERVICES_DIR = Join-Path $AK_DIR 'services'
+$global:CRED_PREFIX = "ak:"  # Prefix for credential targets
 $global:CREDMANAGER_DLL = Join-Path $AK_SCRIPT_DIR 'CredManager.dll'
 $global:CREDMANAGER_SOURCE = Join-Path $AK_SCRIPT_DIR 'CredManager.cs'
 $global:CREDMANAGER_BUILD = Join-Path $AK_SCRIPT_DIR 'build-credmanager.ps1'

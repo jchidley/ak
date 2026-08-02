@@ -5,7 +5,9 @@
 
 set -e
 
-AK_DIR="${AK_DIR:-$HOME/tools/api-keys}"
+SCRIPT_PATH="$(readlink -f -- "${BASH_SOURCE[0]}")"
+SCRIPT_DIR="$(cd -- "$(dirname -- "$SCRIPT_PATH")" && pwd)"
+AK_DIR="${AK_DIR:-$(dirname -- "$SCRIPT_DIR")}"
 SECRETS_DIR="$AK_DIR/secrets"
 SERVICES_DIR="$AK_DIR/services"
 GPG_KEY_FILE="$AK_DIR/.gpg-key-id"
@@ -285,10 +287,12 @@ cmd_open() {
     
     echo "Opening: $url"
     
-    if command -v xdg-open &>/dev/null; then
-        xdg-open "$url"
+    if command -v win-open &>/dev/null; then
+        win-open "$url"
     elif command -v wslview &>/dev/null; then
         wslview "$url"
+    elif command -v xdg-open &>/dev/null; then
+        xdg-open "$url"
     elif [[ -n "$BROWSER" ]]; then
         "$BROWSER" "$url"
     else
@@ -306,7 +310,7 @@ cmd_export() {
         
         if [[ -f "$SECRETS_DIR/${service}.gpg" ]]; then
             local value=$(cmd_get "$service")
-            echo "export $env_var='$value'"
+            printf 'export %s=%q\n' "$env_var" "$value"
         fi
     else
         shopt -s nullglob
@@ -318,7 +322,7 @@ cmd_export() {
             
             if [[ -f "$SECRETS_DIR/${name}.gpg" ]]; then
                 local value=$(cmd_get "$name")
-                echo "export $env_var='$value'"
+                printf 'export %s=%q\n' "$env_var" "$value"
             fi
         done
     fi

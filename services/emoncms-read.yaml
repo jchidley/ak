@@ -1,0 +1,6 @@
+name: "EmonCMS Read-only API Key"
+env_var: EMONCMS_API_KEY
+url: ""
+notes: |
+  Accepted low-risk read-only key used by heat-pump analysis tooling.
+  Keep the value out of project guidance and configuration.

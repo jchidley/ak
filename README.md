@@ -29,13 +29,16 @@ eval "$(ak export)"
 | `ak export` | Print export commands |
 | `ak rotate <svc>` | Show rotation info + open URL |
 
-## Shell Integration
+## Installation and shell integration
 
-Already in `~/.bashrc`:
+The source checkout is `~/github/ak`; install command links in the standard user path:
+
 ```bash
-export PATH="$HOME/tools/api-keys/bin:$PATH"
-source "$HOME/tools/api-keys/bin/ak-functions.sh"
+ln -sfn "$HOME/github/ak/bin/ak" "$HOME/.local/bin/ak"
+ln -sfn "$HOME/github/ak/bin/ak-ssh-askpass" "$HOME/.local/bin/ak-ssh-askpass"
 ```
+
+Optionally source `~/github/ak/bin/ak-functions.sh` for convenience aliases. Source code directories do not need to be added to `PATH`.
 
 **Direnv** (in `.envrc`):
 ```bash
