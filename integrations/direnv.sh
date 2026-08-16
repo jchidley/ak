@@ -36,16 +36,20 @@ use_ak() {
     fi
 
     local name env_var value
+    local -a missing=()
     for name in "$@"; do
         if ! env_var=$("$AK_BIN" env-var "$name" 2>/dev/null); then
             log_error "ak service is missing, invalid, or non-exportable: $name"
             return 1
         fi
         if ! value=$(ak_get "$name"); then
-            log_status "ak secret unavailable; skipped: $name"
+            missing+=("$name")
             continue
         fi
         export "$env_var=$value"
         ak_log_loaded "$env_var"
     done
+    if [[ ${#missing[@]} -gt 0 ]]; then
+        log_status "ak export profile skipped unavailable services: ${missing[*]}"
+    fi
 }
