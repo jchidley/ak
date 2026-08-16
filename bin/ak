@@ -307,6 +307,10 @@ cmd_export() {
     
     if [[ -n "$service" ]]; then
         local svc_file="$SERVICES_DIR/${service}.yaml"
+        if [[ $(yaml_get "$svc_file" "export") == "false" ]]; then
+            echo "Error: service is not exportable: $service" >&2
+            return 1
+        fi
         local env_var=$(yaml_get "$svc_file" "env_var")
         [[ -z "$env_var" ]] && env_var="${service^^}_API_KEY"
         
@@ -319,6 +323,10 @@ cmd_export() {
         for svc_file in "$SERVICES_DIR"/*.yaml; do
             [[ -f "$svc_file" ]] || continue
             local name=$(basename "$svc_file" .yaml)
+            # Non-API credentials (for example an SSH key passphrase) may be
+            # retrieved explicitly with `ak get` but must not enter every
+            # shell's environment through a bulk export.
+            [[ $(yaml_get "$svc_file" "export") == "false" ]] && continue
             local env_var=$(yaml_get "$svc_file" "env_var")
             [[ -z "$env_var" ]] && env_var="${name^^}_API_KEY"
             

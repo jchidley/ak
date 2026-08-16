@@ -3,3 +3,6 @@ secrets/
 
 # GPG key ID (personal)
 .gpg-key-id
+
+# Generated Windows Credential Manager helper (retained code, not an approved local fallback)
+bin/CredManager.dll

@@ -1,5 +1,6 @@
 name: "SSH Key Passphrase"
 env_var: SSH_KEY_PASSPHRASE
+export: false
 url: ""
 notes: |
   Passphrase for ~/.ssh/id_ed25519

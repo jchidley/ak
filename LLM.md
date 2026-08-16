@@ -1,6 +1,6 @@
 # ak - API Key Manager (LLM Reference)
 
-GPG-encrypted secret storage with gpg-agent passphrase caching.
+GPG-encrypted secret storage with gpg-agent passphrase caching. On Jack's machines this repository is authoritative only inside the WSL distro nominated by the Windows-side `~/.config/ak/vault.conf`. Windows wrappers name that distro explicitly and do not fall back to another distro, Credential Manager, or Bitwarden.
 
 ## Directory Structure
 
@@ -9,8 +9,8 @@ GPG-encrypted secret storage with gpg-agent passphrase caching.
 ├── bin/
 │   ├── ak                  # Main CLI (bash)
 │   ├── ak-test             # Test all API keys
-│   ├── ak-functions.sh     # Shell functions: load_api_keys, aliases
-│   ├── ak.ps1              # PowerShell interface using Credential Manager
+│   ├── ak-functions.sh     # Legacy/convenience shell functions; do not auto-load
+│   ├── ak.ps1              # Retained cross-platform code; not an approved local fallback
 │   └── review-api-usage    # Monthly security review checklist
 ├── secrets/*.gpg           # Encrypted secrets
 ├── services/*.yaml         # Service metadata (URLs, env vars, notes)
@@ -30,7 +30,7 @@ ak set <service>       # Store secret (prompts for value)
 ak show <service>      # Display service YAML metadata
 ak edit <service>      # Edit service YAML (creates template if missing)
 ak open <service>      # Open service URL in browser
-ak export [service]    # Print "export VAR='value'" for eval
+ak export [service]    # Prefer one explicit service; export:false services are rejected
 ak rotate <service>    # Show metadata + open URL for rotation workflow
 ```
 
@@ -44,6 +44,7 @@ notes: |
   Multi-line notes for rotation instructions,
   account details, etc.
 last_rotated: 2026-01-16T14:16:49+01:00
+export: true           # Set false for credentials that must never enter an environment
 ```
 
 ## Configured Services
@@ -63,39 +64,13 @@ last_rotated: 2026-01-16T14:16:49+01:00
 
 ## Shell Integration
 
-### Bash/Zsh (~/.bashrc)
+Link only the administrative CLI inside the nominated WSL distro:
 
 ```bash
 ln -sfn "$HOME/github/ak/bin/ak" "$HOME/.local/bin/ak"
-source "$HOME/github/ak/bin/ak-functions.sh"
 ```
 
-Provides:
-- `load_api_keys` / `load-api-keys` - Export all secrets
-- `show-keys` → `ak list`
-- `get-key` → `ak get`
-- `set-key` → `ak set`
-
-### Direnv (.envrc)
-
-```bash
-use_ak              # Load all keys
-use_ak brave spider # Load specific keys
-```
-
-Requires symlink:
-```bash
-ln -sfn ~/github/ak/integrations/direnv.sh ~/.config/direnv/lib/ak.sh
-```
-
-### PowerShell ($PROFILE)
-
-```powershell
-. C:\path\to\ak\bin\ak.ps1
-$env:BRAVE_API_KEY = Get-AkSecret brave
-```
-
-Note: the PowerShell interface stores Windows-side secrets through Credential Manager; the WSL Bash interface uses GPG-encrypted files.
+Do not bulk-load keys from shell profiles, `.envrc`, or direnv. Retrieve one approved low-risk service explicitly for the current task. Windows callers must use the `windows-env` `ak-get` wrapper so the configured distro is enforced. The retained PowerShell/Credential Manager and Bitwarden implementations are not approved fallbacks on this machine.
 
 ## GPG Configuration
 
@@ -164,8 +139,10 @@ ak set <service>     # Paste new key
 - **Encryption**: GPG (RSA/AES-256)
 - **Key**: the GPG recipient selected by `ak init`; do not document its passphrase
 - **Cache**: gpg-agent caches passphrase (configurable TTL)
-- **Storage**: secrets/*.gpg files, 600 permissions
-- **Exposure**: Once unlocked, any user process can decrypt for cache duration
+- **Storage**: `secrets/*.gpg` files with mode 600, only in the nominated WSL distro
+- **Routing**: Windows callers explicitly name the configured distro and fail closed
+- **Export control**: `export: false` prevents both bulk and explicit shell export
+- **Exposure**: Once unlocked, any user process in the nominated distro can decrypt for the cache duration
 
 ## Risk Tiers (as of 2026-01-16)
 

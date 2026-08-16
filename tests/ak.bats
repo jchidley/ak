@@ -16,6 +16,12 @@ notes: |
   Test fixture only.
 YAML
 
+  cat >"$TEST_REPO/services/private.yaml" <<'YAML'
+name: "Non-exportable credential"
+env_var: PRIVATE_CREDENTIAL
+export: false
+YAML
+
   printf 'TEST-KEY-ID\n' >"$TEST_REPO/.gpg-key-id"
 
   cat >"$TEST_BIN/gpg" <<'SH'
@@ -84,4 +90,26 @@ SH
   [ "$status" -eq 0 ]
   [ "$output" = "$secret" ]
   [ ! -e "$marker" ]
+}
+
+@test "bulk export excludes credentials marked export false" {
+  printf 'api-secret' >"$TEST_REPO/secrets/test.gpg"
+  printf 'private-secret' >"$TEST_REPO/secrets/private.gpg"
+
+  run env AK_DIR="$TEST_REPO" PATH="$TEST_BIN:$PATH" "$TEST_REPO/bin/ak" export
+
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"TEST_KEY"* ]]
+  [[ "$output" != *"PRIVATE_CREDENTIAL"* ]]
+  [[ "$output" != *"private-secret"* ]]
+}
+
+@test "explicit export rejects credentials marked export false" {
+  printf 'private-secret' >"$TEST_REPO/secrets/private.gpg"
+
+  run env AK_DIR="$TEST_REPO" PATH="$TEST_BIN:$PATH" "$TEST_REPO/bin/ak" export private
+
+  [ "$status" -ne 0 ]
+  [[ "$output" == *"not exportable"* ]]
+  [[ "$output" != *"private-secret"* ]]
 }
