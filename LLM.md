@@ -26,6 +26,7 @@ GPG-encrypted secret storage with gpg-agent passphrase caching. On Jack's machin
 ak init                # Select GPG key, create directories
 ak list                # List services with secret status
 ak get <service>       # Decrypt secret to stdout
+ak env-var <service>   # Print variable name; rejects export:false services
 ak set <service>       # Store secret (prompts for value)
 ak show <service>      # Display service YAML metadata
 ak edit <service>      # Edit service YAML (creates template if missing)
@@ -70,7 +71,7 @@ Link only the administrative CLI inside the nominated WSL distro:
 ln -sfn "$HOME/github/ak/bin/ak" "$HOME/.local/bin/ak"
 ```
 
-Do not bulk-load keys from shell profiles, `.envrc`, or direnv. Retrieve one approved low-risk service explicitly for the current task. Windows callers must use the `windows-env` `ak-get` wrapper so the configured distro is enforced. The retained PowerShell/Credential Manager and Bitwarden implementations are not approved fallbacks on this machine.
+A managed `.envrc` may call `use_ak` with a reviewed, explicit service allowlist. Windows PowerShell imports the same managed profile from the nominated WSL vault, duplicating environment variables but not secret storage. No-argument `use_ak`, unbounded shell startup exports, Credential Manager, and Bitwarden are not approved fallbacks.
 
 ## GPG Configuration
 

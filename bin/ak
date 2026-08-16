@@ -36,6 +36,7 @@ Commands:
   init                  Initialize with GPG key (select existing)
   list                  List all configured services
   get <service>         Get decrypted secret (stdout)
+  env-var <service>     Print export variable name for an exportable service
   set <service>         Store/update secret (prompts)
   show <service>        Show service info (URL, notes, etc.)
   edit <service>        Edit service metadata
@@ -153,6 +154,38 @@ cmd_list() {
     echo "Legend: ✓ = secret stored"
 }
 
+validate_service_name() {
+    local service="$1"
+    if [[ -z "$service" || ! "$service" =~ ^[A-Za-z0-9._-]+$ ]]; then
+        echo "Error: invalid service name: $service" >&2
+        return 1
+    fi
+}
+
+cmd_env_var() {
+    local service="$1"
+    validate_service_name "$service" || return
+
+    local svc_file="$SERVICES_DIR/${service}.yaml"
+    if [[ ! -f "$svc_file" ]]; then
+        echo "Error: no service metadata for: $service" >&2
+        return 1
+    fi
+    if [[ $(yaml_get "$svc_file" "export") == "false" ]]; then
+        echo "Error: service is not exportable: $service" >&2
+        return 1
+    fi
+
+    local env_var
+    env_var=$(yaml_get "$svc_file" "env_var")
+    [[ -n "$env_var" ]] || env_var="${service^^}_API_KEY"
+    if [[ ! "$env_var" =~ ^[A-Za-z_][A-Za-z0-9_]*$ ]]; then
+        echo "Error: invalid env_var for service '$service': $env_var" >&2
+        return 1
+    fi
+    printf '%s\n' "$env_var"
+}
+
 cmd_get() {
     local service="$1"
     
@@ -160,6 +193,7 @@ cmd_get() {
         echo "Usage: ak get <service>" >&2
         exit 1
     fi
+    validate_service_name "$service" || return
     
     local secret_file="$SECRETS_DIR/${service}.gpg"
     
@@ -306,13 +340,8 @@ cmd_export() {
     local service="$1"
     
     if [[ -n "$service" ]]; then
-        local svc_file="$SERVICES_DIR/${service}.yaml"
-        if [[ $(yaml_get "$svc_file" "export") == "false" ]]; then
-            echo "Error: service is not exportable: $service" >&2
-            return 1
-        fi
-        local env_var=$(yaml_get "$svc_file" "env_var")
-        [[ -z "$env_var" ]] && env_var="${service^^}_API_KEY"
+        local env_var
+        env_var=$(cmd_env_var "$service") || return
         
         if [[ -f "$SECRETS_DIR/${service}.gpg" ]]; then
             local value=$(cmd_get "$service")
@@ -359,6 +388,7 @@ case "${1:-help}" in
     init) cmd_init ;;
     list|ls) cmd_list ;;
     get) cmd_get "$2" ;;
+    env-var) cmd_env_var "$2" ;;
     set) cmd_set "$2" "$3" ;;
     show|info) cmd_show "$2" ;;
     edit) cmd_edit "$2" ;;

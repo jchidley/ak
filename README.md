@@ -23,6 +23,7 @@ export BRAVE_API_KEY=$(ak get brave)
 | `ak init` | Select GPG key for encryption |
 | `ak list` | List services (✓ = has secret) |
 | `ak get <svc>` | Decrypt and print secret |
+| `ak env-var <svc>` | Print the variable name for an exportable service |
 | `ak set <svc>` | Store/update secret |
 | `ak show <svc>` | Show service metadata |
 | `ak open <svc>` | Open management URL |
@@ -38,7 +39,7 @@ ln -sfn "$HOME/github/ak/bin/ak" "$HOME/.local/bin/ak"
 ln -sfn "$HOME/github/ak/bin/ak-ssh-askpass" "$HOME/.local/bin/ak-ssh-askpass"
 ```
 
-Source code directories do not need to be added to `PATH`. Do not source bulk-loading helpers from shell profiles or `.envrc`; retrieve one approved low-risk service explicitly when required.
+Source code directories do not need to be added to `PATH`. A reviewed `.envrc` may call `use_ak` with an explicit service allowlist; that same managed allowlist is imported by Windows PowerShell. Do not use no-argument/bulk loading, and do not add non-exportable credentials to an environment profile.
 
 ## Security
 
