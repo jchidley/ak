@@ -5,3 +5,4 @@ notes: |
   Personal REST/GraphQL API key.
   Use for single-account scripts.
   Rotate via the Octopus dashboard URL above.
+last_rotated: 2026-08-17T03:04:35+01:00
