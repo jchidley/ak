@@ -1,15 +1,16 @@
 name: "GitHub Personal Access Token"
 env_var: GITHUB_TOKEN
-url: "https://github.com/settings/tokens"
+url: "https://github.com/settings/personal-access-tokens"
 notes: |
   Plan: Free (as of 2026-01-16)
-  Token: ak-keys, EXPIRES 2026-01-23 (7 days)
-  
-  Fine-grained tokens (recommended):
-  https://github.com/settings/personal-access-tokens/new
-  
-  Typical scopes needed:
-  - repo (full control of private repos)
-  - read:org (if working with org repos)
-  - workflow (for GitHub Actions)
-last_rotated: 2026-08-03T19:02:21+01:00
+  Token: black-wsl-git, expires 2027-08-17
+  Resource owner: @jchidley
+  Repository access: all repositories owned by @jchidley
+  Repository permissions:
+  - metadata: read
+  - administration: read/write
+  - code: read/write
+  User permissions: none
+  Workflow permission is intentionally not granted unless GitHub Actions files
+  need to be modified.
+last_rotated: 2026-08-17T05:27:53+01:00
