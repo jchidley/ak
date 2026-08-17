@@ -1,0 +1,6 @@
+name: "ZAI Coding Plan API Key"
+env_var: ZAI_API_KEY
+url: "https://z.ai/manage-apikey/apikey-list"
+notes: |
+  API key used by Pi's built-in ZAI Coding Plan provider.
+  Rotate from the Z.AI API-key management page.
