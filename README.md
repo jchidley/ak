@@ -32,7 +32,7 @@ export BRAVE_API_KEY=$(ak get brave)
 
 ## Installation and shell integration
 
-The source checkout is `~/github/ak`; install command links in the standard user path:
+The source checkout is `~/git/ak`; install command links in the standard user path:
 
 ```bash
 ln -sfn "$HOME/github/ak/bin/ak" "$HOME/.local/bin/ak"

@@ -5,7 +5,7 @@ GPG-encrypted secret storage with gpg-agent passphrase caching. On Jack's machin
 ## Directory Structure
 
 ```
-~/github/ak/
+~/git/ak/
 ├── bin/
 │   ├── ak                  # Main CLI (bash)
 │   ├── ak-test             # Test all API keys
@@ -115,8 +115,8 @@ gpg --edit-key <KEY_ID>  # trust → 5 (ultimate) → quit
 ### Sync Secrets
 
 ```bash
-rsync -av ~/github/ak/secrets/ target:~/github/ak/secrets/
-rsync -av ~/github/ak/.gpg-key-id target:~/github/ak/
+rsync -av ~/git/ak/secrets/ target:~/git/ak/secrets/
+rsync -av ~/git/ak/.gpg-key-id target:~/git/ak/
 ```
 
 ## Adding New Services

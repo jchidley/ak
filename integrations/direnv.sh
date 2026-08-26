@@ -1,6 +1,6 @@
 # GPG-based secret management for direnv
 # Symlink to: ~/.config/direnv/lib/ak.sh
-#   ln -sf ~/github/ak/integrations/direnv.sh ~/.config/direnv/lib/ak.sh
+#   ln -sf ~/git/ak/integrations/direnv.sh ~/.config/direnv/lib/ak.sh
 
 AK_INTEGRATION_PATH="$(readlink -f -- "${BASH_SOURCE[0]}")"
 AK_DIR="${AK_DIR:-$(dirname -- "$(dirname -- "$AK_INTEGRATION_PATH")")}"
