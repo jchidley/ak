@@ -20,6 +20,12 @@ GPG-encrypted secret storage with gpg-agent passphrase caching. On Jack's machin
 └── .gpg-key-id             # Selected GPG key ID
 ```
 
+## Scope and effects
+
+Reviews are read-only. Prefer the consuming skill's managed launcher for the single explicitly needed service, capturing its value internally; never invoke a value-returning helper alone in an agent tool call. Read-only inventory does not require decryption. Installation/link replacement, initialisation, metadata edits, secret storage/rotation, GPG configuration and cross-machine transfer require concrete approval. Do not use these administrative recipes as automatic recovery for a failed read.
+
+`bin/ak` is an administrative Bash CLI, not a sandbox. Name validation is not uniform across all commands; use reviewed literal service names for approved administration. YAML parsing is limited, explicit export can mask a failed decrypt, and direnv can skip unavailable services or leave partial environment changes. Consumers must verify their required credential is present without logging it. No secret retrieval is implied by this reference.
+
 ## Commands
 
 ```bash
@@ -68,7 +74,7 @@ export: true           # Set false for credentials that must never enter an envi
 Link only the administrative CLI inside the nominated WSL distro:
 
 ```bash
-ln -sfn "$HOME/github/ak/bin/ak" "$HOME/.local/bin/ak"
+ln -sfn "$HOME/git/ak/bin/ak" "$HOME/.local/bin/ak"
 ```
 
 A managed `.envrc` may call `use_ak` with a reviewed, explicit service allowlist. Windows PowerShell imports the same managed profile from the nominated WSL vault, duplicating environment variables but not secret storage. No-argument `use_ak`, unbounded shell startup exports, Credential Manager, and Bitwarden are not approved fallbacks.
@@ -99,25 +105,7 @@ gpgconf --kill gpg-agent
 
 ## Cross-Machine Sync
 
-### Export GPG Key
-
-```bash
-gpg --export-secret-keys --armor <KEY_ID> > /tmp/ak-gpg-key.asc
-```
-
-### Import on Target
-
-```bash
-gpg --import /path/to/ak-gpg-key.asc
-gpg --edit-key <KEY_ID>  # trust → 5 (ultimate) → quit
-```
-
-### Sync Secrets
-
-```bash
-rsync -av ~/git/ak/secrets/ target:~/git/ak/secrets/
-rsync -av ~/git/ak/.gpg-key-id target:~/git/ak/
-```
+Key export/import, trust changes and encrypted-store replication are separate security-sensitive operations, not routine setup or troubleshooting. Establish approved source/destination ownership, secure transport/storage, recipient trust and preservation before requesting concrete approval. Do not write private-key material to a predictable temporary file, assume ultimate trust, or copy a vault to an arbitrary host from this reference.
 
 ## Adding New Services
 
@@ -153,7 +141,7 @@ ak set <service>     # Paste new key
 
 ## Monthly Review
 
-Run `review-api-usage` to see checklist of dashboards to audit.
+`bash bin/review-api-usage` prints a historical dashboard/rotation checklist; it does not inspect accounts or establish current balances, limits or provider terms. Any account access, revocation, replacement or paid validation requires its own scope and approval.
 
 ## Troubleshooting
 
@@ -187,8 +175,11 @@ The `legacy/` directory contains archived Bitwarden integration docs from before
 ## Testing
 
 ```bash
-ak-test   # Provider API smoke tests; may consume quota
+# Retained broad provider smoke script; do not use for routine validation:
+# bash bin/ak-test
 ```
+
+`bin/ak-test` retrieves multiple credentials, performs provider requests including generation/crawling, can expose keys in process arguments, and prints some failures without failing the overall run. It is not a reliable success gate or an approved bulk credential consumer. Use a separately reviewed provider-specific check only when needed and authorized. `tests/ak.bats` uses synthetic GPG fixtures; that does not validate real provider or encryption behavior.
 
 Historical Bitwarden automation experiments are retained under `legacy/bitwarden/`; they are not active workspace credential commands.
 

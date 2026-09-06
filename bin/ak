@@ -46,16 +46,14 @@ Commands:
 
 Examples:
   ak list               # Show all services
-  ak get brave          # Print Brave API key
-  ak show github        # Show GitHub token info
-  ak open anthropic     # Open Anthropic dashboard
-  ak export             # Print export commands for all
-  
-  # Use in scripts:
-  export BRAVE_API_KEY=\$(ak get brave)
-  
-  # Load all keys:
-  eval "\$(ak export)"
+  ak show github        # Show service metadata; it may contain private notes
+
+Agent use:
+  Use the consuming skill's managed launcher for the explicitly needed service.
+  Never print decrypted values or shell exports in tool output.
+  No automatic bulk loading, alternate-vault fallback, setup or rotation.
+  Administrative writes and account operations require concrete approval.
+  See LLM.md for command effects and export/direnv failure limitations.
 
 gpg-agent caches your passphrase after first use.
 Configure cache TTL in ~/.gnupg/gpg-agent.conf:

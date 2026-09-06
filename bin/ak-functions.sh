@@ -1,11 +1,12 @@
 # ak - API Key Manager shell functions
-# Source this file in .bashrc or .zshrc after installing ak in ~/.local/bin.
+# Legacy convenience examples, not approved shell startup or agent automation.
+# Do not source automatically; use the reviewed explicit direnv service allowlist.
 
 if ! command -v ak >/dev/null 2>&1; then
     echo "ak is not installed on PATH (expected ~/.local/bin/ak)" >&2
 fi
 
-# Load all API keys into environment
+# Retained unsupported bulk-load helper; not an approved fallback.
 load_api_keys() {
     eval "$(ak export)"
 }
