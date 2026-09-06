@@ -1,0 +1,28 @@
+{
+  "schemaVersion": 1,
+  "kind": "repo-preflight-disposition",
+  "identity": "github.com/jchidley/ak",
+  "decision": "changes-published",
+  "reviewedCommit": "6854256a0ec97b51363a92ecbf9a0e4921263546",
+  "operation": "inspect",
+  "files": {
+    "LLM.md": "f388d330b057e2918105397957498f9a119f681ccc2463b8a717397f9ce7512a",
+    "README.md": "4b168c6a9c73a59c55a648c90dc0384aa69afd3290718cf43d56aa2168b173c2",
+    "bin/ak": "2c0ee09c92ef673cc992f6d8be2db48aaa4f03b3c5e9cca959c9deb0f982834e",
+    "bin/ak-functions.sh": "043448f9507b57b7c783eeb0c240bc9180cf24b973d7ca3a284f2f9741cc7270",
+    "bin/review-api-usage": "0c623d57ad74390d48174b16a48105c6654c660be2ba0317898e18e4346ac637"
+  },
+  "profileId": "4e2f946311539a962f68da645c3a22ac068d8be0022fc08f8ed3cae14331fcc2",
+  "reviewer": "controller-pi-session-01a07795-640e-7529-b8bf-bbdc58622b3e",
+  "summary": "Validated guidance changes are published at the reviewed commit.",
+  "evidenceSummary": [
+    "Validated guidance candidate committed and pushed to main at 6854256a0ec97b51363a92ecbf9a0e4921263546; post-publication Repo Preflight reports current.",
+    "Account-wide rollout identity, source scope, disposition, and validation evidence were reconciled."
+  ],
+  "limitations": [
+    "Scoped guidance/caller review, not runtime/deployment or current provider-policy certification.",
+    "Target/base freshness must be checked again before approved publication."
+  ],
+  "recordedAt": "2026-09-06T22:49:05.078Z",
+  "publicationApproved": false
+}
