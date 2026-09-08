@@ -201,8 +201,17 @@ cmd_get() {
         exit 1
     fi
     
-    # Decrypt - gpg-agent handles passphrase caching
-    gpg --quiet --decrypt "$secret_file" 2>/dev/null
+    # Only the visible login coordinator may request pinentry. Background
+    # consumers (direnv, Windows helpers, jobs) use the cache or fail promptly.
+    local -a prompt_options=(--batch --no-tty --pinentry-mode error)
+    if [[ ${AK_INTERACTIVE_UNLOCK:-0} == 1 && ${TERM:-dumb} != dumb &&
+          ${GPG_TTY:-} == /dev/pts/* && -c ${GPG_TTY:-} ]]; then
+        prompt_options=(--pinentry-mode ask)
+    fi
+    if ! gpg --quiet "${prompt_options[@]}" --decrypt "$secret_file"; then
+        echo 'AK: credential unavailable; unlock GPG in a visible WSL login.' >&2
+        return 1
+    fi
 }
 
 cmd_set() {
