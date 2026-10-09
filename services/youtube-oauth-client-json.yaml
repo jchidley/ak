@@ -1,6 +1,40 @@
-name: "YouTube OAuth Client JSON"
+name: "YouTube - Shared YouTube playlist tools"
 env_var: YOUTUBE_OAUTH_CLIENT_JSON
-url: "https://console.cloud.google.com/apis/credentials"
+url: "https://console.cloud.google.com/auth/clients?project=field-rf-lab-youtube-playlists"
 notes: |
-  OAuth client configuration JSON used by YouTube tooling.
-  Rotate from Google Cloud credentials if the client is exposed.
+  Project: field-rf-lab-youtube-playlists
+  Current client: Shared YouTube playlist tools
+  Required type: TVs and Limited Input devices; leave the AI-agent designation unchecked.
+  Previous credential was deleted (user-reported).
+  Recovery copy: Bitwarden entry "YouTube - Shared YouTube playlist tools".
+  Bitwarden is a manual recovery source only, not a runtime fallback or automation target.
+
+  Renewal/rotation:
+  1. Open the URL above, select this project, and find "Shared YouTube playlist tools".
+  2. If a secret must be replaced, add one if Google offers it, otherwise create a new
+     TVs and Limited Input devices client in this same project. Do not use Desktop,
+     Web, a service account, or an API key for these tools.
+  3. Save the new client JSON manually in the named Bitwarden entry.
+  4. With explicit approval, import the JSON into this encrypted ak service. It must
+     contain both client_id and client_secret (flat or Google's installed wrapper).
+     Do not put credential values in command arguments, logs, docs, or either repo.
+  5. Reauthorize each used profile in /home/jack/git/youtube-workbench:
+     radio-study through playlist-manager and chidley-engineering through creator-curator.
+     Tokens belong to their issuing OAuth client.
+  6. Retire the superseded Google credential only after the replacement is verified.
+
+  Token expiry is not necessarily client-secret expiry: Testing-mode OAuth grants
+  can expire after seven days. Try explicit device login again for an expired grant;
+  do not rotate the client merely because its cached refresh token expired.
+
+  Consumers (canonical root: /home/jack/git/youtube-workbench):
+  playlist-manager: bash playlist-manager/scripts/youtube-playlists.sh login --profile radio-study
+  creator-curator: uv run youtube-workbench login --profile chidley-engineering
+  Shared authentication: playlist-manager/scripts/youtube-client.mjs
+  Authentication guide: /home/jack/git/youtube-workbench/docs/authentication.md
+  field-rf-lab retains RF-specific content and forwards to the shared workbench tooling.
+  /home/jack/tools/reset-youtube is a compatibility link, not the canonical implementation.
+  Runtime retrieval: reviewed ak-get helper and the nominated WSL vault only.
+  Imported on the last_rotated timestamp below; encrypted read-back matched the source.
+  Storage verification does not establish Google OAuth or YouTube API acceptance.
+last_rotated: 2026-10-07T10:24:55+01:00
