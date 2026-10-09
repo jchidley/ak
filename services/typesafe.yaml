@@ -1,0 +1,8 @@
+name: "typesafe"
+env_var: TYPESAFE_API_KEY
+url: "https://console.typesafe.ai/keys"
+notes: |
+  How to get/rotate this key:
+  1. Go to URL above
+  2. Create Key
+last_rotated: 2026-09-30T16:14:08+01:00
