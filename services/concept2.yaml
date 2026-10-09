@@ -1,0 +1,8 @@
+name: "concept2"
+env_var: CONCEPT2_API_KEY
+url: "https://log.concept2.com/connections/concept2-logbook-api/home"
+notes: |
+  How to get/rotate this key:
+  1. Go to URL above for "Concept2 Logbook API"
+  2. Click "Regenerate Token" button
+last_rotated: 2026-09-19T21:28:37+01:00
